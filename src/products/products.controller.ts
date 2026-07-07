@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Req, Put } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto, CreateVariantDto } from './dto/create-product.dto';
+import { UpdateProductDto, UpdateVariantDto } from './dto/update-product.dto';
 import { TenantGuard } from '../tenants/tenant.guard';
-import { CurrentTenantId } from 'src/tenants/current-tenant.decorator';
+
 
 @Controller('products')
 @UseGuards(TenantGuard)
@@ -24,9 +25,19 @@ export class ProductsController {
     return this.productsService.findOne(req.tenantId, +id);
   }
 
+  @Put(':id')
+  async update(@Req() req: any, @Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
+    return this.productsService.update(req.tenantId, +id, updateProductDto);
+  }
+
   @Post(':id/variants')
   async addVariant(@Req() req: any, @Param('id') id: string, @Body() createVariantDto: CreateVariantDto) {
     return this.productsService.addVariant(req.tenantId, +id, createVariantDto);
+  }
+
+  @Put(':id/variants')
+  async updateVariant(@Req() req: any, @Param('id') id: string, @Body() UpdateVariantDto: UpdateVariantDto) {
+    return this.productsService.updateVariant(req.tenantId, +id, UpdateVariantDto);
   }
 
   @Get('find/:id/variants')

@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param } from '@nestjs/common';
 import { TenantsService } from './tenants.service';
+import { UpdateTenantDto } from './dto/update-tenant.dto';
 
 @Controller('tenants')
 export class TenantsController {
@@ -14,4 +15,10 @@ export class TenantsController {
   async findAll() {
     return this.tenantsService.findAll();
   }
+
+  @Put(':id')
+  async update(@Param('id') id: string, @Body() updateTenantDto: UpdateTenantDto) {
+    return this.tenantsService.update(+id, updateTenantDto.name, updateTenantDto.domain);
+  }
 }
+

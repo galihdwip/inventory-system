@@ -5,6 +5,7 @@ import { Warehouse } from './entities/warehouse.entity';
 import { Stock } from './entities/stock.entity';
 import { ProductVariant } from '../products/entities/product-variant.entity';
 import { CreateWarehouseDto, AdjustStockDto } from './dto/create-warehouse.dto';
+import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 
 @Injectable()
 export class WarehousesService {
@@ -35,6 +36,19 @@ export class WarehousesService {
       throw new NotFoundException(`Warehouse with ID ${id} not found`);
     }
     return warehouse;
+  }
+
+  async update(tenantId: number, id: number, updateWarehouseDto: UpdateWarehouseDto): Promise<Warehouse> {
+    const warehouse = await this.findOne(tenantId, id);
+
+    if (updateWarehouseDto.name !== undefined) {
+      warehouse.name = updateWarehouseDto.name;
+    }
+    if (updateWarehouseDto.location !== undefined) {
+      warehouse.location = updateWarehouseDto.location;
+    }
+
+    return await this.warehouseRepository.save(warehouse);
   }
 
   async adjustStock(tenantId: number, warehouseId: number, adjustStockDto: AdjustStockDto): Promise<Stock> {

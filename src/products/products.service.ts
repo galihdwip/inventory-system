@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { ProductVariant } from './entities/product-variant.entity';
 import { CreateProductDto, CreateVariantDto } from './dto/create-product.dto';
+import { UpdateProductDto, UpdateVariantDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductsService {
@@ -77,6 +78,19 @@ export class ProductsService {
     return product;
   }
 
+  async update(tenantId: number, id: number, updateProductDto: UpdateProductDto): Promise<Product> {
+    const product = await this.findOne(tenantId, id);
+
+    if (updateProductDto.name !== undefined) {
+      product.name = updateProductDto.name;
+    }
+    if (updateProductDto.description !== undefined) {
+      product.description = updateProductDto.description;
+    }
+
+    return await this.productRepository.save(product);
+  }
+
   async addVariant(tenantId: number, productId: number, createVariantDto: CreateVariantDto): Promise<ProductVariant> {
     await this.findOne(tenantId, productId);
 
@@ -93,11 +107,6 @@ export class ProductsService {
     return await this.variantRepository.save(variant);
   }
 
-  // async getVariant(id: number, tenantId: number): Promise<ProductVariant> {
-  //   const productVariant = await this.findVariant(id, tenantId);
-
-  //   return productVariant;
-  // }
 
   async findVariant(tenantId: number, id: number): Promise<ProductVariant> {
 
@@ -116,5 +125,27 @@ export class ProductsService {
     }
 
     return productVariant;
+  }
+
+  async updateVariant(tenantId: number, id: number, updateVariantDto: UpdateVariantDto): Promise<ProductVariant> {
+    const productVariant = await this.findVariant(tenantId, id);
+
+    if (updateVariantDto.sku !== undefined && updateVariantDto.sku !== productVariant.sku) {
+      const existing = await this.variantRepository.findOne({ where: { sku: updateVariantDto.sku } });
+      if (existing) {
+        throw new ConflictException(`SKU ${updateVariantDto.sku} is already in use`);
+      }
+      productVariant.sku = updateVariantDto.sku;
+    }
+
+    if (updateVariantDto.price !== undefined) {
+      productVariant.price = updateVariantDto.price;
+    }
+
+    if (updateVariantDto.attributes !== undefined) {
+      productVariant.attributes = updateVariantDto.attributes;
+    }
+
+    return await this.variantRepository.save(productVariant);
   }
 }

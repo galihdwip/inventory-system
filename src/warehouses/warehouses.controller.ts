@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Req, Put } from '@nestjs/common';
 import { WarehousesService } from './warehouses.service';
 import { CreateWarehouseDto, AdjustStockDto } from './dto/create-warehouse.dto';
+import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 import { TenantGuard } from '../tenants/tenant.guard';
 
 @Controller('warehouses')
@@ -21,6 +22,11 @@ export class WarehousesController {
   @Get(':id')
   async findOne(@Req() req: any, @Param('id') id: string) {
     return this.warehousesService.findOne(req.tenantId, +id);
+  }
+
+  @Put(':id')
+  async update(@Req() req: any, @Param('id') id: string, @Body() updateWarehouseDto: UpdateWarehouseDto) {
+    return this.warehousesService.update(req.tenantId, +id, updateWarehouseDto);
   }
 
   @Post(':id/stock')
